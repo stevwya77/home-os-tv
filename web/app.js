@@ -239,23 +239,30 @@
     $('quoteBy').textContent = q.by;
   }
 
+  /** The archival photo: the one packed into the app first, then Wikipedia live, else the placeholder. */
   function photo(h) {
     var el = $('photo');
     el.className = 'photo';
     el.style.backgroundImage = '';
     $('photoCredit').textContent = 'FIG. ' + h.y + ' · ' + h.place;
-    getJson('https://en.wikipedia.org/api/rest_v1/page/summary/' + h.wiki, function (j) {
-      var src = j && j.thumbnail && j.thumbnail.source;
-      if (!src) return;
-      src = src.replace(/\/(\d+)px-/, '/640px-');
+    function show(src, credit, fallback) {
       var img = new Image();
       img.onload = function () {
         el.style.backgroundImage = 'url("' + src + '")';
         el.className = 'photo has';
-        $('photoCredit').textContent = 'FIG. ' + h.y + ' · IMAGE: WIKIPEDIA';
+        $('photoCredit').textContent = 'FIG. ' + h.y + ' · ' + credit;
       };
+      img.onerror = fallback || function () {};
       img.src = src;
-    });
+    }
+    function live() {
+      getJson('https://en.wikipedia.org/api/rest_v1/page/summary/' + h.wiki, function (j) {
+        var src = j && j.thumbnail && j.thumbnail.source;
+        if (src) show(src.replace(/\/(\d+)px-/, '/640px-'), 'IMAGE: WIKIPEDIA');
+      });
+    }
+    var packed = typeof PHOTOS !== 'undefined' && PHOTOS[h.wiki];
+    if (packed) show(packed.src, packed.credit, live); else live();
   }
 
   // MARK: - Screensaver: public-domain paintings from the Art Institute of Chicago
