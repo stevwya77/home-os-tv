@@ -2,7 +2,7 @@
 """Packs an archival photo for each history date into the app, so the photo shows even when Wikipedia can't be reached.
 
 For each `wiki:` article in web/history.js it takes the article's lead image from Wikimedia Commons,
-keeps it only if Commons marks it public domain (or CC0), and saves a 640px copy to web/photos/.
+keeps it only if Commons marks it public domain, CC0 or Creative Commons BY (credited on screen), and saves a 640px copy to web/photos/.
 web/photos.js then lists them for the app. Runs in the release workflow; never fails the build.
 
     python3 fetch_photos.py
@@ -18,7 +18,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 WEB = os.path.join(ROOT, 'web')
 OUT = os.path.join(WEB, 'photos')
 AGENT = 'HOME-OS-TV-build/1.0 (https://github.com/stevwya77/home-os-tv)'
-FREE = re.compile(r'public domain|^pd\b|^pd-|cc0', re.I)
+FREE = re.compile(r'public domain|^pd\b|^pd-|cc0|^cc by', re.I)
 
 
 def get(url, raw=False):
