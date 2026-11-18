@@ -47,25 +47,49 @@ def free_file(name):
     return (info, licence) if FREE.search(licence) else (None, 'licence ' + licence)
 
 
-def photo_for(title):
+NOT_PHOTO = re.compile(r'\.(svg|gif)$|flag|logo|icon|emblem|map|seal|coat.of.arms|signature', re.I)
+
+
+def licence_of(info):
+    return strip_tags((info.get('extmetadata', {}).get('LicenseShortName') or {}).get('value'))
+
+
+def commons_search(query):
+    """Free bitmap images on Commons matching the query, best match first."""
+    q = dict(action='query', format='json', formatversion=2, generator='search', gsrnamespace=6, gsrlimit=10,
+             gsrsearch=query + ' filetype:bitmap', prop='imageinfo', iiprop='url|extmetadata', iiurlwidth=640)
+    pages = get('https://commons.wikimedia.org/w/api.php?' + urllib.parse.urlencode(q)).get('query', {}).get('pages', [])
+    for page in sorted(pages, key=lambda p: p.get('index', 99)):
+        name = page['title'].split(':', 1)[1]
+        info = (page.get('imageinfo') or [None])[0]
+        if info and not NOT_PHOTO.search(name) and FREE.search(licence_of(info)):
+            yield name, info
+
+
+def photo_for(title, year):
+    """The lead photo of the article; else the best Commons match for the event; else another photo in the article."""
     title = urllib.parse.unquote(title)
     page = api('en.wikipedia.org', titles=title, prop='pageimages', piprop='name', redirects=1)
-    names = [page['pageimage']] if page.get('pageimage') else []
-    # No usable lead image: fall back to the article's other photos (listed alphabetically).
-    images = api('en.wikipedia.org', titles=title, prop='images', imlimit=40, redirects=1).get('images', [])
-    for im in images:
-        n = im['title'].split(':', 1)[1]
-        if re.search(r'\.(jpe?g|png)$', n, re.I) and not re.search(r'flag|logo|icon|map|seal|coat.of.arms|signature', n, re.I):
-            names.append(n.replace(' ', '_'))
-    why = 'no photo'
-    for n in names[:12]:
-        info, licence = free_file(n)
+    lead = page.get('pageimage')
+    if lead and not NOT_PHOTO.search(lead):
+        info, why = free_file(lead)
         if info:
-            break
-        why = licence
-    else:
-        return None, why
+            return save(title, lead, info)
+    topic = re.sub(r'\s*\(.*?\)', '', title.replace('_', ' '))
+    for name, info in commons_search('%s %s' % (topic, year)):
+        return save(title, name, info)
+    for im in api('en.wikipedia.org', titles=title, prop='images', imlimit=40, redirects=1).get('images', [])[:12]:
+        name = im['title'].split(':', 1)[1].replace(' ', '_')
+        if not NOT_PHOTO.search(name):
+            info, why = free_file(name)
+            if info:
+                return save(title, name, info)
+    return None, 'no free photo'
+
+
+def save(title, name, info):
     meta = info.get('extmetadata', {})
+    licence = licence_of(info)
     url = info.get('thumburl') or info['url']
     ext = os.path.splitext(urllib.parse.urlparse(url).path)[1].lower()
     ext = ext if ext in ('.jpg', '.jpeg', '.png', '.gif') else '.jpg'
@@ -73,18 +97,18 @@ def photo_for(title):
     with open(os.path.join(OUT, slug), 'wb') as f:
         f.write(get(url, raw=True))
     artist = strip_tags((meta.get('Artist') or {}).get('value'))[:60]
-    print('    ' + n)
+    print('    ' + name)
     return {'src': 'photos/' + slug, 'credit': (artist + ' · ' if artist else '') + licence.upper()}, 'ok'
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(WEB, 'history.js'), encoding='utf-8') as f:
-        titles = sorted(set(re.findall(r"wiki:\s*'([^']+)'", f.read())))
+        titles = {w: y for y, w in reversed(re.findall(r"y:\s*(-?\d+).*?wiki:\s*'([^']+)'", f.read()))}
     photos = {}
-    for t in titles:
+    for t, year in sorted(titles.items()):
         try:
-            p, why = photo_for(t)
+            p, why = photo_for(t, year)
         except Exception as e:  # a missing photo must never stop a release
             p, why = None, 'error ' + str(e)
         if p:
@@ -92,7 +116,7 @@ def main():
         print(('+ ' if p else '- ') + t + ('' if p else ' (' + why + ')'))
         time.sleep(0.3)
     with open(os.path.join(WEB, 'photos.js'), 'w', encoding='utf-8') as f:
-        f.write('/* Written by fetch_photos.py: public-domain photos packed into the app. */\nvar PHOTOS = ')
+        f.write('/* Written by fetch_photos.py: freely licensed photos packed into the app. */\nvar PHOTOS = ')
         f.write(json.dumps(photos, ensure_ascii=False, indent=1, sort_keys=True))
         f.write(';\n')
     print('Packed %d of %d photos' % (len(photos), len(titles)))
