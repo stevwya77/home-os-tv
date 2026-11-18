@@ -66,9 +66,12 @@ def commons_search(query):
             yield name, info
 
 
-def photo_for(title, year):
-    """The lead photo of the article; else the best Commons match for the event; else another photo in the article."""
+def photo_for(title, year, search=None):
+    """The entry's own photo search if it has one; else the article's lead photo; else the best Commons match
+    for the event; else another photo in the article."""
     title = urllib.parse.unquote(title)
+    for name, info in commons_search(search) if search else ():
+        return save(title, name, info)
     page = api('en.wikipedia.org', titles=title, prop='pageimages', piprop='name', redirects=1)
     lead = page.get('pageimage')
     if lead and not NOT_PHOTO.search(lead):
@@ -104,11 +107,16 @@ def save(title, name, info):
 def main():
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(WEB, 'history.js'), encoding='utf-8') as f:
-        titles = {w: y for y, w in reversed(re.findall(r"y:\s*(-?\d+).*?wiki:\s*'([^']+)'", f.read()))}
+        entries = {}
+        for line in reversed(f.read().splitlines()):
+            m = re.search(r"y:\s*(-?\d+).*?wiki:\s*'([^']+)'", line)
+            if m:
+                search = re.search(r"photo:\s*'([^']+)'", line)
+                entries[m.group(2)] = (m.group(1), search and search.group(1))
     photos = {}
-    for t, year in sorted(titles.items()):
+    for t, (year, search) in sorted(entries.items()):
         try:
-            p, why = photo_for(t, year)
+            p, why = photo_for(t, year, search)
         except Exception as e:  # a missing photo must never stop a release
             p, why = None, 'error ' + str(e)
         if p:
@@ -119,7 +127,7 @@ def main():
         f.write('/* Written by fetch_photos.py: freely licensed photos packed into the app. */\nvar PHOTOS = ')
         f.write(json.dumps(photos, ensure_ascii=False, indent=1, sort_keys=True))
         f.write(';\n')
-    print('Packed %d of %d photos' % (len(photos), len(titles)))
+    print('Packed %d of %d photos' % (len(photos), len(entries)))
 
 
 if __name__ == '__main__':

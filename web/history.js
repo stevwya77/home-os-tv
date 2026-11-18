@@ -1,6 +1,7 @@
 /*
  * Working people's and socialist history from around the world, by date (Gregorian calendar).
  * wiki: the English Wikipedia article whose lead image becomes the archival photo.
+ * photo (optional): Wikimedia Commons search words, when the article's own photos don't fit the event.
  * Add your own: one line each, {m: month, d: day, y: year, place, text, wiki}.
  */
 var HISTORY = [
@@ -39,7 +40,7 @@ var HISTORY = [
   {m: 8, d: 14, y: 1980, place: 'POLAND', text: 'Workers at the Lenin Shipyard in Gdańsk go on strike, the birth of the Solidarity union.', wiki: 'Solidarity_(Polish_trade_union)'},
   {m: 8, d: 16, y: 1819, place: 'ENGLAND', text: 'Peterloo Massacre: cavalry charge a crowd of some 60,000 people demanding parliamentary reform in Manchester.', wiki: 'Peterloo_Massacre'},
   {m: 8, d: 28, y: 1963, place: 'UNITED STATES', text: 'The March on Washington for Jobs and Freedom brings some 250,000 people to the capital.', wiki: 'March_on_Washington_for_Jobs_and_Freedom'},
-  {m: 9, d: 5, y: 1882, place: 'UNITED STATES', text: 'Some 10,000 workers march in New York City’s first Labor Day parade.', wiki: 'Labor_Day'},
+  {m: 9, d: 5, y: 1882, place: 'UNITED STATES', text: 'Some 10,000 workers march in New York City’s first Labor Day parade.', wiki: 'Labor_Day', photo: 'first Labor Day parade New York 1882'},
   {m: 9, d: 8, y: 1965, place: 'UNITED STATES', text: 'Filipino farmworkers walk out of the grape fields near Delano, California. Mexican American workers soon join them.', wiki: 'Delano_grape_strike'},
   {m: 9, d: 11, y: 1973, place: 'CHILE', text: 'A military coup overthrows the elected socialist government. President Salvador Allende dies in the presidential palace.', wiki: '1973_Chilean_coup_d%27%C3%A9tat'},
   {m: 9, d: 28, y: 1864, place: 'ENGLAND', text: 'The International Workingmen’s Association, the First International, is founded in London.', wiki: 'International_Workingmen%27s_Association'},
@@ -57,7 +58,7 @@ var HISTORY = [
   {m: 12, d: 1, y: 1955, place: 'UNITED STATES', text: 'Rosa Parks is arrested in Montgomery for refusing to give up her bus seat, sparking the Montgomery bus boycott.', wiki: 'Rosa_Parks'},
   {m: 12, d: 4, y: 1969, place: 'UNITED STATES', text: 'Black Panther leader Fred Hampton, 21, is killed by police in a predawn raid in Chicago.', wiki: 'Fred_Hampton'},
   {m: 12, d: 10, y: 1948, place: 'UNITED NATIONS', text: 'The Universal Declaration of Human Rights is adopted, including everyone’s right to form and join trade unions.', wiki: 'Universal_Declaration_of_Human_Rights'},
-  {m: 12, d: 30, y: 1936, place: 'UNITED STATES', text: 'Auto workers occupy General Motors plants in the Flint sit-down strike.', wiki: '1936%E2%80%931937_Flint_sit-down_strike'}
+  {m: 12, d: 30, y: 1936, place: 'UNITED STATES', text: 'Auto workers occupy General Motors plants in the Flint sit-down strike.', wiki: '1936%E2%80%931937_Flint_sit-down_strike', photo: 'Flint sit-down strike'}
 ];
 
 var QUOTES = [
