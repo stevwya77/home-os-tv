@@ -1,0 +1,100 @@
+@font-face { font-family: Tektur; src: url(fonts/Tektur.ttf) format('truetype'); font-weight: 400 900; }
+@font-face { font-family: JBM; src: url(fonts/JetBrainsMono.ttf) format('truetype'); font-weight: 100 800; }
+
+:root { --hue: #ff0033; --ink: #141414; --paper: #e4e4e1; --line: #bdbdb8; --red: #ff2d1f; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--paper); cursor: none; }
+body { font-family: JBM, ui-monospace, monospace; color: var(--ink); }
+#stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); transform-origin: 0 0; }
+button { font: inherit; color: inherit; }
+.hidden { display: none !important; }
+.hue { color: var(--hue); transition: color 300ms ease; }
+
+.lines i { position: absolute; background: var(--line); }
+.lines .v { top: 0; bottom: 0; width: 1px; }
+.lines .h { left: 0; right: 0; height: 1px; }
+.mark { position: absolute; width: 16px; height: 16px; background: var(--red); }
+.sq { display: inline-block; width: 12px; height: 12px; background: var(--red); flex: none; }
+
+#top { position: absolute; left: 64px; right: 64px; top: 0; height: 96px; display: flex; align-items: center; }
+#top .cell { width: 448px; height: 96px; display: flex; align-items: center; gap: 16px; padding-left: 32px; font-size: 22px; letter-spacing: 0.06em; }
+.brand b { font-family: Tektur; font-weight: 900; font-size: 30px; letter-spacing: 0.04em; }
+.dots { display: grid; grid-template-columns: 10px 10px; gap: 5px; }
+.dots i { width: 10px; height: 10px; background: var(--red); }
+.status .ok { width: 10px; height: 10px; background: #1f9d55; }
+.date { gap: 22px !important; }
+.weather { display: flex; align-items: center; gap: 10px; }
+.weather svg { width: 58px; height: 46px; }
+.weather b { font-family: Tektur; font-weight: 700; font-size: 30px; letter-spacing: 0; }
+.right { justify-content: flex-end; padding-right: 8px; gap: 24px !important; }
+#clock { font-family: Tektur; font-weight: 700; font-size: 44px; letter-spacing: 0.02em; }
+#clock small { font-size: 22px; margin-left: 6px; }
+.chamfer { height: 56px; padding: 0 28px; border: none; background: var(--red); font-size: 20px; font-weight: 700; letter-spacing: 0.08em;
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
+.chamfer.focus { background: var(--ink); color: #fff; outline: none; }
+
+#hero { position: absolute; left: 64px; right: 64px; top: 96px; height: 356px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+#hero h1 { margin: 0; font-family: Tektur; font-weight: 900; line-height: 1; white-space: nowrap; color: var(--hue); transform: translateY(-18px); transition: color 300ms ease; }
+#hero h1.swap { animation: swap 260ms ease; }
+@keyframes swap { from { opacity: 0; transform: translateY(0); } to { opacity: 1; transform: translateY(-18px); } }
+#heroMeta { position: absolute; left: 128px; top: 408px; display: flex; gap: 40px; font-size: 20px; letter-spacing: 0.1em; }
+
+#photoCell { position: absolute; left: 64px; top: 452px; width: 448px; height: 364px; margin: 0; padding: 32px; display: flex; flex-direction: column; gap: 14px; }
+.photo { position: relative; flex: 1; display: flex; align-items: flex-end; padding: 16px; overflow: hidden;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,0.06) 0 2px, transparent 2px 6px), linear-gradient(160deg, #b9b6ae, #8b8880 60%, #6a6862); background-size: cover; background-position: center; }
+.photo.has { filter: grayscale(1) contrast(1.08); }
+.photo.has::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.07) 0 2px, transparent 2px 5px); }
+.photo span { position: relative; z-index: 1; font-size: 16px; color: #f4f3ef; letter-spacing: 0.08em; }
+.photo.has span { display: none; }
+#photoCredit { font-size: 15px; letter-spacing: 0.08em; color: #4a4a46; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+#history { position: absolute; left: 512px; top: 452px; width: 896px; height: 364px; padding: 40px 48px; display: flex; flex-direction: column; gap: 16px; }
+.label { display: flex; align-items: center; gap: 12px; font-size: 18px; letter-spacing: 0.12em; }
+.year { font-family: Tektur; font-weight: 900; font-size: 120px; line-height: 0.9; }
+#histText { margin: 0; font-size: 25px; line-height: 1.4; max-width: 790px; }
+
+#quote { position: absolute; left: 1408px; top: 452px; width: 448px; height: 364px; margin: 0; padding: 40px 36px; display: flex; flex-direction: column; justify-content: space-between;
+  background: var(--hue); color: #fff; transition: background 300ms ease; }
+#quote blockquote { margin: 0; font-family: Tektur; font-weight: 900; font-size: 40px; line-height: 1.04; text-transform: uppercase; }
+#quote blockquote.small { font-size: 31px; }
+#quote blockquote.smaller { font-size: 25px; }
+#quote figcaption { display: flex; align-items: center; gap: 12px; font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+#strip { position: absolute; left: 64px; right: 64px; top: 816px; height: 64px; display: flex; align-items: center; }
+#strip .lbl { width: 448px; padding-left: 32px; font-size: 20px; letter-spacing: 0.12em; flex: none; }
+#toast { flex: 1; padding-left: 32px; font-size: 20px; letter-spacing: 0.06em; color: var(--hue); }
+#strip .arrows { display: flex; height: 64px; }
+.arr { width: 96px; display: flex; align-items: center; justify-content: center; border-left: 1px solid var(--line); background: #f2f2ef; font-style: normal; font-size: 22px; }
+
+#rail { position: absolute; left: 0; right: 0; top: 880px; height: 160px; overflow: hidden; background: #f4f4f1; }
+#track { position: absolute; top: 0; left: -384px; height: 160px; display: flex; }
+#track.slide { transition: transform 220ms cubic-bezier(.3,.7,.3,1); }
+.cell5 { width: 384px; height: 160px; flex: none; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--line); position: relative; }
+.cell5.on { background: var(--hue); clip-path: polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px); }
+.tile { width: 220px; height: 104px; border-radius: 18px; display: flex; align-items: center; justify-content: center; gap: 14px; box-shadow: 0 0 0 1px rgba(0,0,0,0.12);
+  transition: width 200ms ease, height 200ms ease; overflow: hidden; }
+.cell5.on .tile { width: 264px; height: 128px; box-shadow: 0 0 0 4px #fff, 0 16px 40px rgba(0,0,0,0.3); }
+.cell5.far .tile { opacity: 0.55; }
+.tile svg { width: 46px; height: 46px; flex: none; }
+.tile img { max-width: 170px; max-height: 60px; }
+.tile b { font-family: Tektur; font-weight: 900; font-size: 32px; letter-spacing: -0.01em; white-space: nowrap; }
+.sub { font-family: JBM; font-size: 13px; letter-spacing: 0.1em; position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; }
+.cell5.on .sub { display: none; }
+.missing .tile { filter: grayscale(1); opacity: 0.5; }
+
+#settings { position: absolute; inset: 0; background: rgba(228,228,225,0.94); display: flex; align-items: center; justify-content: center; }
+#settings .panel { width: 1000px; background: #f4f4f1; border: 1px solid var(--line); padding: 48px 56px; }
+#settings h2 { margin: 0 0 28px; font-family: Tektur; font-weight: 900; font-size: 64px; color: var(--hue); }
+.row { display: flex; justify-content: space-between; align-items: center; height: 76px; padding: 0 24px; border-top: 1px solid var(--line); font-size: 24px; letter-spacing: 0.06em; }
+.row b { font-family: Tektur; font-size: 30px; }
+.row.focus { background: var(--hue); color: #fff; }
+.hint { margin: 24px 0 0; font-size: 18px; letter-spacing: 0.08em; color: #4a4a46; }
+
+#saver { position: absolute; inset: 0; background: #0c0c0c; }
+.art { position: absolute; inset: -40px; background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0; transition: opacity 2500ms ease; }
+.art.show { opacity: 1; }
+.art.drift { animation: drift 90s linear forwards; }
+@keyframes drift { from { transform: scale(1.0) translate(0, 0); } to { transform: scale(1.05) translate(-20px, -12px); } }
+#saverInfo { position: absolute; display: flex; flex-direction: column; gap: 6px; color: #e9e8e3; text-shadow: 0 2px 12px rgba(0,0,0,0.8); transition: left 2s ease, top 2s ease; }
+#saverClock { font-family: Tektur; font-weight: 700; font-size: 56px; }
+#saverCaption { font-size: 17px; letter-spacing: 0.06em; max-width: 760px; }

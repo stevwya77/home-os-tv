@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1920, initial-scale=1">
+<title>HOME//OS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="stage">
+
+  <div class="lines" aria-hidden="true">
+    <i class="v" style="left:64px"></i><i class="v" style="left:512px"></i>
+    <i class="v" style="left:960px;height:452px"></i><i class="v" style="left:960px;top:816px"></i>
+    <i class="v" style="left:1408px"></i><i class="v" style="left:1856px"></i>
+    <i class="h" style="top:96px"></i><i class="h" style="top:452px"></i><i class="h" style="top:816px"></i>
+    <i class="h" style="top:880px"></i><i class="h" style="top:1040px"></i>
+  </div>
+
+  <header id="top">
+    <div class="cell brand"><span class="dots"><i></i><i></i><i></i><i></i></span><b>HOME//OS</b></div>
+    <div class="cell date"><span id="date">---</span><span id="weather" class="weather"></span></div>
+    <div class="cell status"><i class="ok"></i>NO ADS / NO TRACKING</div>
+    <div class="cell right"><span id="clock">--:--</span><button id="settingsBtn" class="chamfer">SETTINGS</button></div>
+  </header>
+
+  <i class="mark" style="left:88px;top:120px"></i><i class="mark" style="right:88px;top:120px"></i>
+  <i class="mark" style="left:88px;top:412px"></i><i class="mark" style="right:88px;top:412px"></i>
+
+  <div id="hero"><h1 id="heroName">YOUTUBE</h1></div>
+  <div id="heroMeta"><span>NOW FOCUSED</span><span id="heroKind" class="hue">VIDEO</span><span>PRESS OK TO OPEN</span></div>
+
+  <figure id="photoCell">
+    <div id="photo" class="photo"><span id="photoLabel">[ARCHIVAL PHOTO]</span></div>
+    <figcaption id="photoCredit">FIG. 01</figcaption>
+  </figure>
+
+  <section id="history">
+    <span class="label"><i class="sq"></i><span id="histLabel">WORKERS’ HISTORY</span></span>
+    <span id="histYear" class="year hue">----</span>
+    <p id="histText"></p>
+  </section>
+
+  <figure id="quote">
+    <blockquote id="quoteText"></blockquote>
+    <figcaption><i class="sq"></i><span id="quoteBy"></span></figcaption>
+  </figure>
+
+  <div id="strip">
+    <span class="lbl">APPS + INPUTS:</span>
+    <span id="toast"></span>
+    <span class="arrows"><i class="arr">&#9664;</i><i class="arr">&#9654;</i></span>
+  </div>
+
+  <nav id="rail"><div id="track"></div></nav>
+
+  <div id="settings" class="hidden">
+    <div class="panel">
+      <h2>SETTINGS</h2>
+      <div id="settingsRows"></div>
+      <p class="hint">▲ ▼ PICK A ROW · ◀ ▶ CHANGE · BACK TO CLOSE</p>
+    </div>
+  </div>
+
+  <div id="saver" class="hidden">
+    <div id="artA" class="art"></div>
+    <div id="artB" class="art"></div>
+    <div id="saverInfo"><span id="saverClock">--:--</span><span id="saverCaption"></span></div>
+  </div>
+</div>
+<script src="history.js"></script>
+<script src="tv.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
