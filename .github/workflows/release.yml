@@ -1,0 +1,17 @@
+# Builds home-os-tv.wgt and publishes it as a GitHub release when a v* tag is pushed.
+# TizenBrew Installer installs the first .wgt of the latest release.
+name: release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 build.py
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" home-os-tv.wgt --title "HOME//OS ${GITHUB_REF_NAME#v}" --notes "Install with TizenBrew Installer → Install from GitHub → ${GITHUB_REPOSITORY}."
