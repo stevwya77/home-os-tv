@@ -336,12 +336,12 @@
   function openPanel() { panelOpen = true; row = 0; $('settings').className = 'open'; renderPanel(); Sound.play('open'); }
   function closePanel() { panelOpen = false; $('settings').className = ''; renderRail(); renderHero(); Sound.play('back'); }
 
-  function changeRow(d) {
+  function changeRow(d, chosen) {
     var r = ROWS[row], i = r.values.indexOf(prefs[r.key]);
     prefs[r.key] = r.values[(i + d + r.values.length) % r.values.length];
     save();
     Sound.enabled = !!prefs.sound;
-    Sound.play('tick');
+    Sound.play(chosen ? 'open' : 'tick');
     renderPanel();
   }
 
@@ -360,7 +360,8 @@
       if (k === KEY.UP) { row = (row + ROWS.length - 1) % ROWS.length; Sound.play('move'); }
       else if (k === KEY.DOWN) { row = (row + 1) % ROWS.length; Sound.play('move'); }
       else if (k === KEY.LEFT) changeRow(-1);
-      else if (k === KEY.RIGHT || k === KEY.OK) changeRow(1);
+      else if (k === KEY.RIGHT) changeRow(1);
+      else if (k === KEY.OK) { changeRow(1, true); }
       else if (k === KEY.BACK || k === KEY.ESC || k === KEY.BACKSPACE) closePanel();
       if (panelOpen) renderPanel();
       e.preventDefault();
@@ -368,7 +369,8 @@
     }
     if (topFocus) {
       if (k === KEY.OK) { setTopFocus(false); openPanel(); }
-      else if (k === KEY.DOWN || k === KEY.BACK || k === KEY.ESC) setTopFocus(false);
+      else if (k === KEY.DOWN) setTopFocus(false);
+      else if (k === KEY.BACK || k === KEY.ESC) { setTopFocus(false); Sound.play('back'); }
       e.preventDefault();
       return;
     }
