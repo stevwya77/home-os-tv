@@ -1,8 +1,11 @@
 @font-face { font-family: Tektur; src: url(fonts/Tektur.ttf) format('truetype'); font-weight: 400 900; }
 @font-face { font-family: JBM; src: url(fonts/JetBrainsMono.ttf) format('truetype'); font-weight: 100 800; }
 
-:root { --ease: cubic-bezier(.2,.8,.2,1); --spring: cubic-bezier(.34,1.45,.64,1); --hue: #ff0033; --ink: #141414; --paper: #e4e4e1; --line: #bdbdb8; --red: #ff2d1f; }
+:root { --ease: cubic-bezier(.2,.8,.2,1); --spring: cubic-bezier(.34,1.45,.64,1); --hue: #ff0033; --ink: #141414; --paper: #dad5c8; --paper-hi: #e7e2d6; --line: #b9b3a5; --red: #ff2d1f; }
 * { box-sizing: border-box; }
+/* Paper tones (Settings › Background). The TV shows light colours brighter than a computer screen, so the default is warmer and a little darker. */
+html[data-paper="sand"] { --paper: #cec4ae; --paper-hi: #ddd4c1; --line: #ada38d; }
+html[data-paper="cool"] { --paper: #e4e4e1; --paper-hi: #f2f2ef; --line: #bdbdb8; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: var(--paper); cursor: none; }
 body { font-family: JBM, ui-monospace, monospace; color: var(--ink); }
 #stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; transform-origin: 0 0;
@@ -104,9 +107,9 @@ button { font: inherit; color: inherit; }
 @keyframes pop { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
 #strip .arrows { display: flex; height: 60px; }
 .arr.press { background: var(--hue); color: #fff; }
-.arr { transition: background-color 150ms ease, color 150ms ease; width: 96px; display: flex; align-items: center; justify-content: center; border-left: 1px solid var(--line); background: #f2f2ef; font-style: normal; font-size: 22px; }
+.arr { transition: background-color 150ms ease, color 150ms ease; width: 96px; display: flex; align-items: center; justify-content: center; border-left: 1px solid var(--line); background: var(--paper-hi); font-style: normal; font-size: 22px; }
 
-#rail { position: absolute; left: 0; right: 0; top: 868px; height: 172px; overflow: hidden; background: rgba(244,244,241,0.85); }
+#rail { position: absolute; left: 0; right: 0; top: 868px; height: 172px; overflow: hidden; background: var(--paper-hi); }
 #track { position: absolute; top: 0; left: -384px; height: 172px; display: flex; }
 #track.slide { transition: transform 300ms var(--ease); }
 .cell5 { width: 384px; height: 172px; flex: none; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--line); position: relative; }
@@ -128,12 +131,12 @@ button { font: inherit; color: inherit; }
 .cell5.on .sub { opacity: 0; }
 .missing .tile { filter: grayscale(1); opacity: 0.5; }
 
-#settings { position: absolute; inset: 0; background: rgba(228,228,225,0.9); display: flex; align-items: center; justify-content: center; z-index: 5;
+#settings { position: absolute; inset: 0; background: rgba(20,20,20,0.35); display: flex; align-items: center; justify-content: center; z-index: 5;
   opacity: 0; visibility: hidden; transition: opacity 250ms ease, visibility 0s linear 250ms; }
 #settings.open { opacity: 1; visibility: visible; transition: opacity 250ms ease; }
 #settings .panel { transform: translateY(24px) scale(0.98); transition: transform 320ms var(--ease); }
 #settings.open .panel { transform: none; }
-#settings .panel { width: 1000px; background: #f4f4f1; border: 2px solid var(--ink); padding: 48px 56px; box-shadow: 14px 14px 0 var(--hue); }
+#settings .panel { width: 1000px; background: var(--paper-hi); border: 2px solid var(--ink); padding: 48px 56px; box-shadow: 14px 14px 0 var(--hue); }
 #settings h2 { margin: 0 0 28px; font-family: Tektur; font-weight: 900; font-size: 64px; color: var(--hue); }
 .row { display: flex; justify-content: space-between; align-items: center; height: 76px; padding: 0 24px; border-top: 1px solid var(--line); font-size: 24px; letter-spacing: 0.06em; }
 .row b { font-family: Tektur; font-size: 30px; }

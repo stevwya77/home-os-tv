@@ -6,7 +6,7 @@
 
   // The weather's place: New York City.
   var PLACE = {lat: 40.71, lon: -73.94};
-  var DEFAULTS = {ps5: 4, sw: 3, saver: 10, sound: 1};
+  var DEFAULTS = {ps5: 4, sw: 3, saver: 10, sound: 1, paper: 'warm'};
   var prefs = load();
   function load() {
     var p = {};
@@ -331,8 +331,11 @@
     {label: 'PS5 IS ON', key: 'ps5', values: [1, 2, 3, 4], show: function (v) { return 'HDMI ' + v; }},
     {label: 'SWITCH IS ON', key: 'sw', values: [1, 2, 3, 4], show: function (v) { return 'HDMI ' + v; }},
     {label: 'ART SCREENSAVER AFTER', key: 'saver', values: [5, 10, 20, 30, 0], show: function (v) { return v ? v + ' MIN' : 'OFF'; }},
-    {label: 'SOUNDS', key: 'sound', values: [1, 0], show: function (v) { return v ? 'ON' : 'OFF'; }}
+    {label: 'SOUNDS', key: 'sound', values: [1, 0], show: function (v) { return v ? 'ON' : 'OFF'; }},
+    {label: 'BACKGROUND', key: 'paper', values: ['warm', 'sand', 'cool'], show: function (v) { return v.toUpperCase(); }}
   ];
+  function applyPaper() { document.documentElement.setAttribute('data-paper', prefs.paper); }
+  applyPaper();
 
   function renderPanel() {
     $('settingsRows').innerHTML = ROWS.map(function (r, i) {
@@ -348,6 +351,7 @@
     prefs[r.key] = r.values[(i + d + r.values.length) % r.values.length];
     save();
     Sound.enabled = !!prefs.sound;
+    applyPaper();
     Sound.play(chosen ? 'open' : 'tick');
     renderPanel();
   }
