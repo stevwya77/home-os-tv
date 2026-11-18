@@ -20,7 +20,7 @@ To remove it: Apps → HOME//OS → Delete. Nothing else on the TV is changed.
 
 ## On the TV
 
-- ▲ goes to Settings: which HDMI port each console is on, and when the screensaver starts.
+- ▲ goes to Settings: which HDMI port each console is on, when the screensaver starts, and sounds on or off.
 - Any key ends the screensaver.
 
 ## Make it yours

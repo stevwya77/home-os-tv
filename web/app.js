@@ -6,7 +6,7 @@
 
   // The weather's place: New York City.
   var PLACE = {lat: 40.71, lon: -73.94};
-  var DEFAULTS = {ps5: 4, sw: 3, saver: 10};
+  var DEFAULTS = {ps5: 4, sw: 3, saver: 10, sound: 1};
   var prefs = load();
   function load() {
     var p = {};
@@ -60,43 +60,66 @@
     track.innerHTML = html;
   }
 
-  function renderHero() {
+  function renderHero(dir) {
     var it = ITEMS[focus];
     document.documentElement.style.setProperty('--hue', it.hue);
     var h = $('heroName');
     h.textContent = it.name;
     h.style.fontSize = Math.min(320, Math.floor(1760 / (it.name.length * 0.78))) + 'px';
     h.className = '';
+    var k = $('heroKind');
+    k.className = 'hue';
     void h.offsetWidth;
-    h.className = 'swap';
-    $('heroKind').textContent = it.port ? 'HDMI ' + prefs[it.port] + ' · GAME CONSOLE' : it.kind;
+    if (dir) { h.className = dir > 0 ? 'inR' : 'inL'; k.className = 'hue flip'; }
+    k.textContent = it.port ? 'HDMI ' + prefs[it.port] + ' · GAME CONSOLE' : it.kind;
   }
 
   function move(d) {
     if (moving) return;
     moving = true;
-    var track = $('track');
+    var track = $('track'), cells = track.children;
+    // The tiles take their new places while the rail slides, so the focus grows into the middle.
+    for (var i = 0; i < cells.length; i++) {
+      var off = i - 3 - d, c = cells[i];
+      c.className = c.className.replace(/ ?\b(on|far)\b/g, '') + (off === 0 ? ' on' : '') + (Math.abs(off) >= 2 ? ' far' : '');
+    }
     track.className = 'slide';
     track.style.transform = 'translateX(' + (-d * 384) + 'px)';
     focus = wrap(focus + d);
-    renderHero();
-    setTimeout(function () { renderRail(); moving = false; }, 230);
+    renderHero(d);
+    Sound.play('move');
+    flash(d > 0 ? 'arrR' : 'arrL');
+    setTimeout(function () { renderRail(); moving = false; }, 300);
   }
 
-  function toast(text) {
-    $('toast').textContent = text;
+  var HINT = '◀ ▶ BROWSE · OK OPEN · ▲ SETTINGS';
+  function toast(text, hint) {
+    var t = $('toast');
+    t.textContent = text;
+    t.className = hint ? 'hint' : '';
+    void t.offsetWidth;
+    t.className = (hint ? 'hint' : '') + ' pop';
     clearTimeout(toast.t);
-    toast.t = setTimeout(function () { $('toast').textContent = ''; }, 4000);
+    if (!hint) toast.t = setTimeout(function () { toast(HINT, true); }, 4000);
+  }
+
+  function flash(id) {
+    var el = $(id);
+    el.className = 'arr press';
+    setTimeout(function () { el.className = 'arr'; }, 160);
   }
 
   function open() {
     var it = ITEMS[focus];
+    var tile = document.querySelector('.cell5.on .tile');
+    if (tile) { tile.className = 'tile press'; setTimeout(function () { tile.className = 'tile'; }, 140); }
+    Sound.play('open');
     if (it.port) {
       TV.hdmi(prefs[it.port], function (ok) { if (!ok) toast('COULDN’T SWITCH TO HDMI ' + prefs[it.port] + '. IS ' + it.name + ' ON?'); });
       return;
     }
     if (it.live) { TV.liveTv(function (ok) { if (!ok) toast('COULDN’T OPEN LIVE TV'); }); return; }
-    if (!it.id) { toast(it.name + ' ISN’T INSTALLED ON THIS TV'); return; }
+    if (!it.id) { Sound.play('nope'); toast(it.name + ' ISN’T INSTALLED ON THIS TV'); return; }
     TV.launch(it.id, it.dial || '', function (ok) { if (!ok) toast('COULDN’T OPEN ' + it.name); });
   }
 
@@ -122,14 +145,15 @@
 
   function clockText(now) {
     var h = now.getHours(), m = now.getMinutes();
-    return (h % 12 || 12) + ':' + (m < 10 ? '0' : '') + m + '<small>' + (h < 12 ? 'AM' : 'PM') + '</small>';
+    return (h % 12 || 12) + '<span class="colon">:</span>' + (m < 10 ? '0' : '') + m + '<small>' + (h < 12 ? 'AM' : 'PM') + '</small>';
   }
 
   var lastDay = -1;
   function tick() {
     var now = new Date();
-    $('clock').innerHTML = clockText(now);
-    $('saverClock').innerHTML = clockText(now);
+    var text = clockText(now);
+    if (text !== tick.last) { tick.last = text; $('clock').innerHTML = text; $('saverClock').innerHTML = text; }
+    $('stage').className = now.getSeconds() % 2 ? 'blink' : '';
     $('date').textContent = DAYS[now.getDay()] + ' ' + MONTHS[now.getMonth()] + ' ' + now.getDate();
     if (now.getDate() !== lastDay) { lastDay = now.getDate(); daily(now); }
   }
@@ -200,6 +224,9 @@
 
   function daily(now) {
     var p = pickHistory(now), h = p.h;
+    $('history').className = ''; $('quote').className = '';
+    void $('history').offsetWidth;
+    $('history').className = 'fade'; $('quote').className = 'fade';
     $('histLabel').textContent = 'WORKERS’ HISTORY · ' + p.label + ' · ' + h.place;
     $('histYear').textContent = h.y;
     $('histText').textContent = h.text;
@@ -276,7 +303,7 @@
   function startSaver() {
     if (saverOn) return;
     saverOn = true;
-    $('saver').className = '';
+    $('saver').className = 'open';
     moveInfo();
     nextArt();
     artTimer = setInterval(nextArt, 90000);
@@ -285,7 +312,7 @@
 
   function stopSaver() {
     saverOn = false;
-    $('saver').className = 'hidden';
+    $('saver').className = '';
     $('artA').className = $('artB').className = 'art';
     clearInterval(artTimer); clearInterval(infoTimer);
   }
@@ -296,7 +323,8 @@
   var ROWS = [
     {label: 'PS5 IS ON', key: 'ps5', values: [1, 2, 3, 4], show: function (v) { return 'HDMI ' + v; }},
     {label: 'SWITCH IS ON', key: 'sw', values: [1, 2, 3, 4], show: function (v) { return 'HDMI ' + v; }},
-    {label: 'ART SCREENSAVER AFTER', key: 'saver', values: [5, 10, 20, 30, 0], show: function (v) { return v ? v + ' MIN' : 'OFF'; }}
+    {label: 'ART SCREENSAVER AFTER', key: 'saver', values: [5, 10, 20, 30, 0], show: function (v) { return v ? v + ' MIN' : 'OFF'; }},
+    {label: 'SOUNDS', key: 'sound', values: [1, 0], show: function (v) { return v ? 'ON' : 'OFF'; }}
   ];
 
   function renderPanel() {
@@ -305,20 +333,22 @@
     }).join('');
   }
 
-  function openPanel() { panelOpen = true; row = 0; $('settings').className = ''; renderPanel(); }
-  function closePanel() { panelOpen = false; $('settings').className = 'hidden'; renderRail(); }
+  function openPanel() { panelOpen = true; row = 0; $('settings').className = 'open'; renderPanel(); Sound.play('open'); }
+  function closePanel() { panelOpen = false; $('settings').className = ''; renderRail(); renderHero(); Sound.play('back'); }
 
   function changeRow(d) {
     var r = ROWS[row], i = r.values.indexOf(prefs[r.key]);
     prefs[r.key] = r.values[(i + d + r.values.length) % r.values.length];
     save();
+    Sound.enabled = !!prefs.sound;
+    Sound.play('tick');
     renderPanel();
   }
 
   // MARK: - Remote
 
   var topFocus = false;
-  function setTopFocus(on) { topFocus = on; $('settingsBtn').className = 'chamfer' + (on ? ' focus' : ''); }
+  function setTopFocus(on) { if (on !== topFocus) Sound.play('move'); topFocus = on; $('settingsBtn').className = 'chamfer' + (on ? ' focus' : ''); }
 
   var KEY = {LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40, OK: 13, BACK: 10009, ESC: 27, BACKSPACE: 8};
 
@@ -327,8 +357,8 @@
     var k = e.keyCode;
     if (saverOn) { stopSaver(); e.preventDefault(); return; }
     if (panelOpen) {
-      if (k === KEY.UP) row = (row + ROWS.length - 1) % ROWS.length;
-      else if (k === KEY.DOWN) row = (row + 1) % ROWS.length;
+      if (k === KEY.UP) { row = (row + ROWS.length - 1) % ROWS.length; Sound.play('move'); }
+      else if (k === KEY.DOWN) { row = (row + 1) % ROWS.length; Sound.play('move'); }
       else if (k === KEY.LEFT) changeRow(-1);
       else if (k === KEY.RIGHT || k === KEY.OK) changeRow(1);
       else if (k === KEY.BACK || k === KEY.ESC || k === KEY.BACKSPACE) closePanel();
@@ -369,12 +399,15 @@
   window.addEventListener('resize', fit);
   fit();
 
+  Sound.enabled = !!prefs.sound;
   TV.registerKeys();
+  toast(HINT, true);
+  setTimeout(function () { document.body.className = ''; }, 1600);
   renderHero();
   renderRail();
   findApps();
   tick();
-  setInterval(tick, 10000);
+  setInterval(tick, 1000);
   weather();
   setInterval(weather, 15 * 60000);
   if (/[?&]saver/.test(location.search)) startSaver();

@@ -6,7 +6,7 @@
 <title>HOME//OS</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="intro">
 <div id="stage">
 
   <div class="lines" aria-hidden="true">
@@ -49,12 +49,12 @@
   <div id="strip">
     <span class="lbl">APPS + INPUTS:</span>
     <span id="toast"></span>
-    <span class="arrows"><i class="arr">&#9664;</i><i class="arr">&#9654;</i></span>
+    <span class="arrows"><i id="arrL" class="arr">&#9664;</i><i id="arrR" class="arr">&#9654;</i></span>
   </div>
 
   <nav id="rail"><div id="track"></div></nav>
 
-  <div id="settings" class="hidden">
+  <div id="settings">
     <div class="panel">
       <h2>SETTINGS</h2>
       <div id="settingsRows"></div>
@@ -62,13 +62,14 @@
     </div>
   </div>
 
-  <div id="saver" class="hidden">
+  <div id="saver">
     <div id="artA" class="art"></div>
     <div id="artB" class="art"></div>
     <div id="saverInfo"><span id="saverClock">--:--</span><span id="saverCaption"></span></div>
   </div>
 </div>
 <script src="history.js"></script>
+<script src="sound.js"></script>
 <script src="tv.js"></script>
 <script src="app.js"></script>
 </body>
