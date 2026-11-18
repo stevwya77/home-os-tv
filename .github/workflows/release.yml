@@ -1,9 +1,12 @@
-# Builds home-os-tv.wgt and publishes it as a GitHub release when a v* tag is pushed.
+# Builds home-os-tv.wgt and publishes it as a GitHub release whenever the app changes on main.
+# The version comes from tizen/config.xml: raise it there for a new release.
 # TizenBrew Installer installs the first .wgt of the latest release.
 name: release
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+    paths: ['web/**', 'tizen/**', 'build.py', '.github/workflows/release.yml']
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
@@ -14,4 +17,11 @@ jobs:
       - run: python3 build.py
       - env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" home-os-tv.wgt --title "HOME//OS ${GITHUB_REF_NAME#v}" --notes "Install with TizenBrew Installer → Install from GitHub → ${GITHUB_REPOSITORY}."
+        run: |
+          v=$(grep -o 'version="[0-9.]*"' tizen/config.xml | head -1 | cut -d'"' -f2)
+          if gh release view "v$v" >/dev/null 2>&1; then
+            gh release upload "v$v" home-os-tv.wgt --clobber
+          else
+            gh release create "v$v" home-os-tv.wgt --target "$GITHUB_SHA" --title "HOME//OS $v" \
+              --notes "Install with TizenBrew Installer → Install from GitHub → ${GITHUB_REPOSITORY}."
+          fi
