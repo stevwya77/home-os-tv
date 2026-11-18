@@ -37,26 +37,43 @@ def api(host, **params):
     return get('https://%s/w/api.php?%s' % (host, urllib.parse.urlencode(params)))['query']['pages'][0]
 
 
-def photo_for(title):
-    page = api('en.wikipedia.org', titles=urllib.parse.unquote(title), prop='pageimages', piprop='name', redirects=1)
-    name = page.get('pageimage')
-    if not name:
-        return None, 'no lead image'
+def free_file(name):
+    """Commons image info for a file, if it is on Commons under a licence we may pack."""
     file = api('commons.wikimedia.org', titles='File:' + name, prop='imageinfo', iiprop='url|extmetadata', iiurlwidth=640, redirects=1)
     if not file.get('imageinfo'):
-        return None, 'lead image is not on Commons'
+        return None, 'not on Commons'
     info = file['imageinfo'][0]
+    licence = strip_tags((info.get('extmetadata', {}).get('LicenseShortName') or {}).get('value'))
+    return (info, licence) if FREE.search(licence) else (None, 'licence ' + licence)
+
+
+def photo_for(title):
+    title = urllib.parse.unquote(title)
+    page = api('en.wikipedia.org', titles=title, prop='pageimages', piprop='name', redirects=1)
+    names = [page['pageimage']] if page.get('pageimage') else []
+    # No usable lead image: fall back to the article's other photos (listed alphabetically).
+    images = api('en.wikipedia.org', titles=title, prop='images', imlimit=40, redirects=1).get('images', [])
+    for im in images:
+        n = im['title'].split(':', 1)[1]
+        if re.search(r'\.(jpe?g|png)$', n, re.I) and not re.search(r'flag|logo|icon|map|seal|coat.of.arms|signature', n, re.I):
+            names.append(n.replace(' ', '_'))
+    why = 'no photo'
+    for n in names[:12]:
+        info, licence = free_file(n)
+        if info:
+            break
+        why = licence
+    else:
+        return None, why
     meta = info.get('extmetadata', {})
-    licence = strip_tags((meta.get('LicenseShortName') or {}).get('value'))
-    if not FREE.search(licence):
-        return None, 'licence ' + licence
     url = info.get('thumburl') or info['url']
     ext = os.path.splitext(urllib.parse.urlparse(url).path)[1].lower()
     ext = ext if ext in ('.jpg', '.jpeg', '.png', '.gif') else '.jpg'
-    slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-') + ext
+    slug = re.sub(r'[^a-z0-9]+', '-', urllib.parse.quote(title).lower()).strip('-') + ext
     with open(os.path.join(OUT, slug), 'wb') as f:
         f.write(get(url, raw=True))
     artist = strip_tags((meta.get('Artist') or {}).get('value'))[:60]
+    print('    ' + n)
     return {'src': 'photos/' + slug, 'credit': (artist + ' · ' if artist else '') + licence.upper()}, 'ok'
 
 
