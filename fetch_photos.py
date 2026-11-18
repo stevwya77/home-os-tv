@@ -47,7 +47,7 @@ def photo_for(title):
         return None, 'lead image is not on Commons'
     info = file['imageinfo'][0]
     meta = info.get('extmetadata', {})
-    licence = strip_tags((meta.get('LicenseShortName') or {}).get('Value'))
+    licence = strip_tags((meta.get('LicenseShortName') or {}).get('value'))
     if not FREE.search(licence):
         return None, 'licence ' + licence
     url = info.get('thumburl') or info['url']
@@ -56,7 +56,7 @@ def photo_for(title):
     slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-') + ext
     with open(os.path.join(OUT, slug), 'wb') as f:
         f.write(get(url, raw=True))
-    artist = strip_tags((meta.get('Artist') or {}).get('Value'))[:60]
+    artist = strip_tags((meta.get('Artist') or {}).get('value'))[:60]
     return {'src': 'photos/' + slug, 'credit': (artist + ' · ' if artist else '') + licence.upper()}, 'ok'
 
 
