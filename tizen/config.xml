@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="https://github.com/stevwya77/home-os-tv" version="1.1.0" viewmodes="maximized">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="https://github.com/stevwya77/home-os-tv" version="1.2.0" viewmodes="maximized">
     <tizen:application id="HomeOSgrid.HomeOS" package="HomeOSgrid" required_version="2.3"/>
     <name>HOME//OS</name>
     <author href="https://github.com/stevwya77/home-os-tv">HOME//OS</author>

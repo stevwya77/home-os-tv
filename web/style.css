@@ -5,7 +5,12 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: var(--paper); cursor: none; }
 body { font-family: JBM, ui-monospace, monospace; color: var(--ink); }
-#stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); transform-origin: 0 0; }
+#stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; transform-origin: 0 0;
+  /* Graph paper: a fine 24 px grid with a stronger line every 120 px. */
+  background-color: var(--paper);
+  background-image: linear-gradient(rgba(20,20,20,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(20,20,20,0.06) 1px, transparent 1px),
+    linear-gradient(rgba(20,20,20,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(20,20,20,0.03) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px; background-position: 48px 88px; }
 button { font: inherit; color: inherit; }
 .hidden { display: none !important; }
 .hue { color: var(--hue); transition: color 300ms ease; }
@@ -13,15 +18,33 @@ button { font: inherit; color: inherit; }
 .lines i { position: absolute; background: var(--line); }
 .lines .v { top: 0; bottom: 0; width: 1px; }
 .lines .h { left: 0; right: 0; height: 1px; }
-.mark { position: absolute; width: 16px; height: 16px; background: var(--red); }
-.sq { display: inline-block; width: 12px; height: 12px; background: var(--red); flex: none; }
+.lines i { background: #a9a9a3; }
+/* Crosshairs where the main lines meet, like registration marks on a drawing. */
+.cross { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; }
+.cross::before, .cross::after { content: ''; position: absolute; background: var(--ink); }
+.cross::before { left: 12px; top: 0; width: 2px; height: 26px; }
+.cross::after { top: 12px; left: 0; height: 2px; width: 26px; }
+.cross i { position: absolute; left: 7px; top: 7px; width: 12px; height: 12px; border: 2px solid var(--ink); border-radius: 50%; }
+/* Small sheet references in the corners of the cells. */
+.ref { position: absolute; font-size: 12px; letter-spacing: 0.14em; color: #8a8a84; }
+/* Rulers along the left and bottom edges. */
+.ruler-b { position: absolute; left: 48px; right: 48px; bottom: 0; height: 40px;
+  background-image: linear-gradient(90deg, #8a8a84 1px, transparent 1px), linear-gradient(90deg, #b5b5af 1px, transparent 1px);
+  background-size: 120px 18px, 24px 9px; background-repeat: repeat-x; background-position: 0 0, 0 0; }
+.ruler-l { position: absolute; left: 0; top: 88px; bottom: 40px; width: 48px;
+  background-image: linear-gradient(#8a8a84 1px, transparent 1px), linear-gradient(#b5b5af 1px, transparent 1px);
+  background-size: 18px 120px, 9px 24px; background-repeat: repeat-y; background-position: 30px 0, 39px 0; }
+.ruler-b span { position: absolute; top: 20px; font-size: 11px; letter-spacing: 0.1em; color: #8a8a84; }
+.sq { display: inline-block; width: 11px; height: 11px; background: var(--red); flex: none; transform: rotate(45deg); margin: 0 3px; }
 
-#top { position: absolute; left: 64px; right: 64px; top: 0; height: 96px; display: flex; align-items: center; }
-#top .cell { width: 448px; height: 96px; display: flex; align-items: center; gap: 16px; padding-left: 32px; font-size: 22px; letter-spacing: 0.06em; }
+#top { position: absolute; left: 48px; right: 48px; top: 0; height: 88px; display: flex; align-items: center; }
+#top .cell:nth-child(1) { width: 440px; } #top .cell:nth-child(2) { width: 480px; } #top .cell:nth-child(3) { width: 400px; } #top .cell:nth-child(4) { width: 504px; }
+#top .cell { height: 88px; display: flex; align-items: center; gap: 16px; padding-left: 32px; font-size: 22px; letter-spacing: 0.06em; }
 .brand b { font-family: Tektur; font-weight: 900; font-size: 30px; letter-spacing: 0.04em; }
-.dots { display: grid; grid-template-columns: 10px 10px; gap: 5px; }
-.dots i { width: 10px; height: 10px; background: var(--red); }
-.status .ok { width: 10px; height: 10px; background: #1f9d55; }
+.dots { position: relative; width: 26px; height: 26px; transform: rotate(45deg); border: 3px solid var(--red); }
+.dots i { position: absolute; left: 6px; top: 6px; width: 8px; height: 8px; background: var(--red); }
+.dots i + i { display: none; }
+.status .ok { width: 10px; height: 10px; background: #1f9d55; transform: rotate(45deg); }
 .date { gap: 22px !important; }
 .weather { display: flex; align-items: center; gap: 10px; }
 .weather svg { width: 58px; height: 46px; animation: bob 6s ease-in-out infinite; }
@@ -32,12 +55,12 @@ button { font: inherit; color: inherit; }
 #clock .colon, #saverClock .colon { transition: opacity 400ms ease; }
 .blink .colon { opacity: 0.25; }
 #clock small { font-size: 22px; margin-left: 6px; }
-.chamfer { height: 56px; padding: 0 28px; border: none; background: var(--red); font-size: 20px; font-weight: 700; letter-spacing: 0.08em;
-  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
-.chamfer { transition: background-color 160ms ease, color 160ms ease, transform 200ms var(--spring); }
-.chamfer.focus { background: var(--ink); color: #fff; outline: none; transform: translate(-3px, -3px); filter: drop-shadow(3px 3px 0 var(--red)); }
+.chamfer { height: 52px; padding: 0 22px; border: 2px solid var(--ink); background: transparent; font-size: 19px; font-weight: 700; letter-spacing: 0.08em;
+  display: flex; align-items: center; gap: 12px; transition: background-color 160ms ease, color 160ms ease, transform 200ms var(--spring), box-shadow 200ms ease; }
+.chamfer::before { content: ''; width: 9px; height: 9px; background: var(--red); transform: rotate(45deg); }
+.chamfer.focus { background: var(--ink); color: #fff; outline: none; transform: translate(-3px, -3px); box-shadow: 4px 4px 0 var(--red); }
 
-#hero { position: absolute; left: 64px; right: 64px; top: 96px; height: 356px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+#hero { position: absolute; left: 48px; right: 48px; top: 88px; height: 342px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 #hero h1 { margin: 0; font-family: Tektur; font-weight: 900; line-height: 1; white-space: nowrap; color: var(--hue); transform: translateY(-18px);
   text-shadow: 8px 8px 0 rgba(20,20,20,0.14); transition: color 320ms ease; will-change: transform, opacity; }
 #hero h1.inR { animation: inR 380ms var(--ease); }
@@ -47,9 +70,9 @@ button { font: inherit; color: inherit; }
 #heroKind { display: inline-block; }
 #heroKind.flip { animation: flip 300ms var(--ease); }
 @keyframes flip { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-#heroMeta { position: absolute; left: 128px; top: 408px; display: flex; gap: 40px; font-size: 20px; letter-spacing: 0.1em; }
+#heroMeta { position: absolute; left: 80px; top: 388px; align-items: center; display: flex; gap: 40px; font-size: 20px; letter-spacing: 0.1em; }
 
-#photoCell { position: absolute; left: 64px; top: 452px; width: 448px; height: 364px; margin: 0; padding: 32px; display: flex; flex-direction: column; gap: 14px; }
+#photoCell { position: absolute; left: 48px; top: 430px; width: 440px; height: 378px; margin: 0; padding: 32px; display: flex; flex-direction: column; gap: 14px; }
 .photo { position: relative; flex: 1; box-shadow: 6px 6px 0 rgba(20,20,20,0.18); transition: opacity 600ms ease; display: flex; align-items: flex-end; padding: 16px; overflow: hidden;
   background: repeating-linear-gradient(0deg, rgba(0,0,0,0.06) 0 2px, transparent 2px 6px), linear-gradient(160deg, #b9b6ae, #8b8880 60%, #6a6862); background-size: cover; background-position: center; }
 .photo.has { filter: grayscale(1) contrast(1.08); animation: develop 1200ms ease; }
@@ -59,36 +82,38 @@ button { font: inherit; color: inherit; }
 .photo.has span { display: none; }
 #photoCredit { font-size: 15px; letter-spacing: 0.08em; color: #4a4a46; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-#history { position: absolute; left: 512px; top: 452px; width: 896px; height: 364px; padding: 40px 48px; display: flex; flex-direction: column; gap: 16px; }
+#history { position: absolute; left: 488px; top: 430px; width: 880px; height: 378px; padding: 40px 48px; display: flex; flex-direction: column; gap: 16px; }
 .label { display: flex; align-items: center; gap: 12px; font-size: 18px; letter-spacing: 0.12em; }
 .year { font-family: Tektur; font-weight: 900; font-size: 120px; line-height: 0.9; }
 #history.fade, #quote.fade blockquote { animation: fadeUp 600ms var(--ease); }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 #histText { margin: 0; font-size: 25px; line-height: 1.4; max-width: 790px; }
 
-#quote { position: absolute; left: 1398px; top: 442px; width: 448px; height: 364px; margin: 0; padding: 40px 36px; display: flex; flex-direction: column; justify-content: space-between;
+#quote { position: absolute; left: 1358px; top: 420px; width: 504px; height: 378px; margin: 0; padding: 40px 36px; display: flex; flex-direction: column; justify-content: space-between;
   background: var(--hue); color: #fff; transition: background-color 320ms ease; box-shadow: 10px 10px 0 var(--ink); z-index: 1; }
 #quote blockquote { margin: 0; font-family: Tektur; font-weight: 900; font-size: 40px; line-height: 1.04; text-transform: uppercase; }
 #quote blockquote.small { font-size: 31px; }
 #quote blockquote.smaller { font-size: 25px; }
 #quote figcaption { display: flex; align-items: center; gap: 12px; font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase; }
 
-#strip { position: absolute; left: 64px; right: 64px; top: 816px; height: 64px; display: flex; align-items: center; }
-#strip .lbl { width: 448px; padding-left: 32px; font-size: 20px; letter-spacing: 0.12em; flex: none; }
-#toast { flex: 1; height: 64px; line-height: 64px; white-space: nowrap; padding-left: 32px; font-size: 20px; letter-spacing: 0.06em; color: var(--hue); transition: opacity 250ms ease, transform 250ms var(--ease); }
+#strip { position: absolute; left: 48px; right: 48px; top: 808px; height: 60px; display: flex; align-items: center; }
+#strip .lbl { width: 440px; padding-left: 32px; font-size: 20px; letter-spacing: 0.12em; flex: none; }
+#toast { flex: 1; height: 60px; display: flex; align-items: center; line-height: 1; white-space: nowrap; padding-left: 32px; font-size: 20px; letter-spacing: 0.06em; color: var(--hue); transition: opacity 250ms ease, transform 250ms var(--ease); }
 #toast.hint { color: #7a7a74; }
 #toast.pop { animation: pop 300ms var(--ease); }
 @keyframes pop { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
-#strip .arrows { display: flex; height: 64px; }
+#strip .arrows { display: flex; height: 60px; }
 .arr.press { background: var(--hue); color: #fff; }
 .arr { transition: background-color 150ms ease, color 150ms ease; width: 96px; display: flex; align-items: center; justify-content: center; border-left: 1px solid var(--line); background: #f2f2ef; font-style: normal; font-size: 22px; }
 
-#rail { position: absolute; left: 0; right: 0; top: 880px; height: 160px; overflow: hidden; background: #f4f4f1; }
-#track { position: absolute; top: 0; left: -384px; height: 160px; display: flex; }
+#rail { position: absolute; left: 0; right: 0; top: 868px; height: 172px; overflow: hidden; background: rgba(244,244,241,0.85); }
+#track { position: absolute; top: 0; left: -384px; height: 172px; display: flex; }
 #track.slide { transition: transform 300ms var(--ease); }
-.cell5 { width: 384px; height: 160px; flex: none; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--line); position: relative; }
+.cell5 { width: 384px; height: 172px; flex: none; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--line); position: relative; }
 .cell5 { transition: background-color 300ms ease; }
-.cell5.on { background: var(--hue); clip-path: polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px); }
+.cell5.on { background: var(--hue); }
+.cell5::before { content: ''; position: absolute; left: 50%; top: 4px; width: 12px; height: 12px; margin-left: -6px; background: #fff; z-index: 1; transform: rotate(45deg) scale(0); transition: transform 300ms var(--spring); }
+.cell5.on::before { transform: rotate(45deg) scale(1); }
 .tile { width: 220px; height: 104px; border-radius: 18px; display: flex; align-items: center; justify-content: center; gap: 14px; box-shadow: 0 0 0 1px rgba(0,0,0,0.12);
   overflow: hidden;
   width: 264px; height: 128px; transform: scale(0.83); transition: transform 380ms var(--spring), box-shadow 300ms ease, opacity 300ms ease;
@@ -114,7 +139,7 @@ button { font: inherit; color: inherit; }
 .row b { font-family: Tektur; font-size: 30px; }
 .row { transition: background-color 160ms ease, color 160ms ease; }
 .row.focus { background: var(--hue); color: #fff; }
-.hint { margin: 24px 0 0; font-size: 18px; letter-spacing: 0.08em; color: #4a4a46; }
+#settings .hint { margin: 24px 0 0; font-size: 18px; letter-spacing: 0.08em; color: #4a4a46; }
 
 #saver { position: absolute; inset: 0; background: #0c0c0c; z-index: 10; opacity: 0; visibility: hidden; transition: opacity 1200ms ease, visibility 0s linear 1200ms; }
 #saver.open { opacity: 1; visibility: visible; transition: opacity 1200ms ease; }
@@ -128,12 +153,13 @@ button { font: inherit; color: inherit; }
 
 /* Startup: the grid draws itself, then the cells settle in. */
 .intro .lines .v { animation: drawV 700ms var(--ease) both; transform-origin: top; }
+.intro .cross, .intro .ref { animation: settle 600ms var(--ease) 300ms both; }
 .intro .lines .h { animation: drawH 700ms var(--ease) both; transform-origin: left; }
 @keyframes drawV { from { transform: scaleY(0); } }
 @keyframes drawH { from { transform: scaleX(0); } }
-.intro #top, .intro #hero, .intro #heroMeta, .intro #photoCell, .intro #history, .intro #quote, .intro #strip, .intro #rail, .intro .mark {
+.intro #top, .intro #hero, .intro #heroMeta, .intro #photoCell, .intro #history, .intro #quote, .intro #strip, .intro #rail {
   animation: settle 600ms var(--ease) both; }
-.intro #top { animation-delay: 250ms; } .intro .mark { animation-delay: 300ms; } .intro #hero { animation-delay: 350ms; }
+.intro #top { animation-delay: 250ms; } .intro #hero { animation-delay: 350ms; }
 .intro #heroMeta { animation-delay: 420ms; } .intro #photoCell { animation-delay: 480ms; } .intro #history { animation-delay: 540ms; }
 .intro #quote { animation-delay: 600ms; } .intro #strip { animation-delay: 660ms; } .intro #rail { animation-delay: 720ms; }
 @keyframes settle { from { opacity: 0; transform: translateY(16px); } }
