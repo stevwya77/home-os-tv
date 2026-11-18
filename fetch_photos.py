@@ -32,16 +32,20 @@ def strip_tags(s):
     return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', '', s or '')).strip()
 
 
+def api(host, **params):
+    params.update(action='query', format='json', formatversion=2)
+    return get('https://%s/w/api.php?%s' % (host, urllib.parse.urlencode(params)))['query']['pages'][0]
+
+
 def photo_for(title):
-    summary = get('https://en.wikipedia.org/api/rest_v1/page/summary/' + urllib.parse.quote(title, safe=''))
-    original = (summary.get('originalimage') or {}).get('source', '')
-    if '/wikipedia/commons/' not in original:
-        return None, 'no Commons lead image'
-    name = urllib.parse.unquote(original.rsplit('/', 1)[1])
-    q = urllib.parse.urlencode({'action': 'query', 'titles': 'File:' + name, 'prop': 'imageinfo',
-                                'iiprop': 'url|extmetadata', 'iiurlwidth': 640, 'format': 'json'})
-    pages = get('https://commons.wikimedia.org/w/api.php?' + q)['query']['pages']
-    info = next(iter(pages.values()))['imageinfo'][0]
+    page = api('en.wikipedia.org', titles=urllib.parse.unquote(title), prop='pageimages', piprop='name', redirects=1)
+    name = page.get('pageimage')
+    if not name:
+        return None, 'no lead image'
+    file = api('commons.wikimedia.org', titles='File:' + name, prop='imageinfo', iiprop='url|extmetadata', iiurlwidth=640, redirects=1)
+    if not file.get('imageinfo'):
+        return None, 'lead image is not on Commons'
+    info = file['imageinfo'][0]
     meta = info.get('extmetadata', {})
     licence = strip_tags((meta.get('LicenseShortName') or {}).get('Value'))
     if not FREE.search(licence):
